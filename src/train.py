@@ -1,10 +1,12 @@
-# main.py
-
+import os
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import joblib
+
+# Ensure artifacts directory exists
+os.makedirs("artifacts", exist_ok=True)
 
 # Load dataset
 data = pd.read_csv("data/iris.csv")
