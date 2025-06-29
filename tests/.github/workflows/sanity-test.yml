@@ -1,0 +1,56 @@
+name: Model Sanity Check
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install black flake8 pytest
+
+      - name: Run training
+        run: |
+          python src/train.py
+
+      - name: Auto-format with Black
+        run: |
+          echo "## Code Formatting (Black)" > report.md
+          black --check --diff src/ tests/ >> report.md || echo "Formatting issues found" >> report.md
+
+      - name: Lint with Flake8
+        run: |
+          echo "## Linting Results (Flake8)" >> report.md
+          flake8 src/ tests/ >> report.md || echo "Linting issues found" >> report.md
+
+      - name: Run Tests
+        run: |
+          echo "## Unit Test Results" >> report.md
+          pytest tests/test_model.py >> report.md || echo "Tests failed" >> report.md
+
+      - name: Setup CML
+        uses: iterative/setup-cml@v2
+
+      - name: Comment results with CML
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cml comment create report.md
