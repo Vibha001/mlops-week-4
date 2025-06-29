@@ -1,5 +1,4 @@
 scikit-learn==1.3.2
 pandas==2.1.4
 pytest==7.4.3
-git+https://github.com/iterative/cml.git
 joblib==1.3.2
